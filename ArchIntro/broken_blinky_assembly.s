@@ -70,7 +70,8 @@ INIT_PIOA
         ; ENABLE PI0A
         LDR R4,=PIOA_BASE
 		MOV R5,#LED_MASK
-        STR R5,[R4,#PIO_PER]      		
+        STR R5,[R4,#PIO_PER]
+		STR R5,[R4,#PIO_OER] ; Added line to set LEDs as outputs
 		POP {R4-R5,R14}
 		BX R14
 
@@ -112,8 +113,8 @@ LEFT_PB_WAIT
 		; WHILE (LEFT_PB IS PRESSED)
 BEGIN_LEFT_PB
 		LDR R5,[R4,#PIO_PDSR]
-        TST R5,#0x00400000
-		BEQ END_LEFT_PB
+        TST R5,#0x02000000 ; Changed to #0x02000000 from #0x00400000
+		BNE END_LEFT_PB ; Changed to BNE from BEQ since should loop while pressed (SW == 0)
 		; NO ACTION 
 		B BEGIN_LEFT_PB
 		; END_WHILE {LEFT_PB IS PRESSED}

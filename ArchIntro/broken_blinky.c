@@ -9,7 +9,7 @@
 /******************************************************************************/
                   
 #include <AT91SAM7SE512.H>              /* AT91SAM7SE512 definitions          */
-#include "..\AT91SAM7SE-EK.h"           /* AT91SAM7SE-EK board definitions    */
+#include "AT91SAM7SE-EK.h"           /* AT91SAM7SE-EK board definitions    */
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
