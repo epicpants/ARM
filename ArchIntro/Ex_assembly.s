@@ -7,13 +7,18 @@
 ;        not altered in the C program.
 ;*********************************************************************
 ;    Code written by: Roger Younger
+;	 Modified by: Jon Eftink and Tyler Ryan
 ;    v1.0 Released: February 5, 2014
+;	 v2.0 Released: February 26, 2015
 ;*********************************************************************
 ;    CONSTANT DEFINITIONS
 ;*********************************************************************
          INCLUDE AT91SAM7SE512.INC
 
-
+		 PB27 EQU 1<<27		; left joystick
+		 PB26 EQU 1<<26		; right joystick
+		 PA0 EQU 1
+		 JOYSTICK_MASK EQU PB27:OR:PB26
 ;***********************************************************
 ;    AREA DEFINITION AND OPTIONS
 ;***********************************************************
@@ -27,6 +32,7 @@
 ;***********************************************************
 		EXPORT IO_INIT
 
+	
 IO_INIT
 
 	PUSH {R4-R7,R14}		; save values altered by this routine
@@ -39,14 +45,20 @@ IO_INIT
 					        ; + the offset PMC_PCER (#0x0010)
 					        ; R4 and R5 are not altered by the instruction	
 	; Enable Peripheral Clock for PIOB
-	NOP
-	NOP
+	MOV R5,#PIOB_PID
+	STR R5,[R4,#PMC_PCER]
 	; Enable PB27(left) and PB26(right)as inputs
-	NOP
-	NOP
+	LDR R4,=PIOB_BASE
+	MOV R5,#JOYSTICK_MASK
+	STR R5,[R4,#PIO_PER]
+	STR R5,[R4,#PIO_ODR]
+	STR R5,[R4,#PIO_PUER]
 	; Enable PA0(power LED) as an output
-	NOP
-	NOP
+	LDR R4,=PIOA_BASE
+	MOV R5,#PA0
+	STR R5,[R4,#PIO_PER]
+	STR R5,[R4,#PIO_OER]
+	STR R5,[R4,#PIO_SODR]	; PA0 (power LED) initialized off
 	POP {R4-R7,R14}		    ; restores the saved registers
 	BX R14 			        ; return to calling program using link reg.
 
@@ -60,8 +72,24 @@ IO_INIT
 READ_SWITCHES
 
 		PUSH {R4-R7,R14}
-		NOP
-		NOP
+		LDR R4,=PIOB_BASE
+		; Read PIO_PDSR of PIOB (read switches)
+		LDR R5,[R4,#PIO_PDSR]
+		; If (left joystick pressed)
+		TST R5,#PB27
+		BNE ELSE_IF_SW
+		; Then
+		MOV R0,#2
+		B END_IF_SW
+ELSE_IF_SW
+		; Else if (right joystick pressed)
+		TST R5,#PB26
+		; Then
+		MOVEQ R0, #1
+		; Else (no joystick pressed)
+		MOVNE R0, #0
+END_IF_SW
+		; End-if {switches pressed}
 		POP {R4-R7,R14}
 		BX R14
 
