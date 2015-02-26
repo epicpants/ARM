@@ -14,16 +14,13 @@
 ;    CONSTANT DEFINITIONS
 ;*********************************************************************
          INCLUDE AT91SAM7SE512.INC
-
-<<<<<<< HEAD
-		 PB27 EQU 1<<27		; left joystick
-		 PB26 EQU 1<<26		; right joystick
-		 PA0 EQU 1
-		 JOYSTICK_MASK EQU PB27:OR:PB26
-=======
+PB27 EQU 1<<27		; left joystick
+PB26 EQU 1<<26		; right joystick
+PA0 EQU 1
+JOYSTICK_MASK EQU PB27:OR:PB26
 POWER_LED EQU 0x00000001
 
->>>>>>> 1e35f2c4bb0465dd72fb6023ed3c349b9e4257f3
+
 ;***********************************************************
 ;    AREA DEFINITION AND OPTIONS
 ;***********************************************************
