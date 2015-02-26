@@ -393,6 +393,5 @@ TC0_PID			EQU		1<<12
 TC1_PID			EQU		1<<13
 TC2_PID			EQU		1<<14
 ADC_PID			EQU		1<<15
-	
-	
+
 				END

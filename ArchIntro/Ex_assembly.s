@@ -15,10 +15,15 @@
 ;*********************************************************************
          INCLUDE AT91SAM7SE512.INC
 
+<<<<<<< HEAD
 		 PB27 EQU 1<<27		; left joystick
 		 PB26 EQU 1<<26		; right joystick
 		 PA0 EQU 1
 		 JOYSTICK_MASK EQU PB27:OR:PB26
+=======
+POWER_LED EQU 0x00000001
+
+>>>>>>> 1e35f2c4bb0465dd72fb6023ed3c349b9e4257f3
 ;***********************************************************
 ;    AREA DEFINITION AND OPTIONS
 ;***********************************************************
@@ -26,6 +31,9 @@
 
 		AREA EXAMPLE,CODE,READONLY
 		ARM
+
+
+
 ;***********************************************************
 ;    Function: IO_INIT
 ;
@@ -95,32 +103,64 @@ END_IF_SW
 
 ;*************************************************************
 ;    Function: CONTROL_LED
+;    Purpose: This function controls the power LED. An input
+;               of 1 will power on the LED. 2 will power off 
+;               the LED. Any other input will do nothing.
+;    Assumptions: The power led pin is set up as an output.
+;
+;                                              R0
+;    Prototype: void CONTROL_LED( unsigned int value);
 ;
 ;*************************************************************
 		EXPORT CONTROL_LED
-
+         
 CONTROL_LED
 
-		PUSH {R4-R7,R14}
-		NOP
-		NOP
-		NOP
-		POP {R4-R7,R14}
+		PUSH {R4-R5,R14}
+		;Initialization:
+		LDR R4, =PIOA_BASE
+		LDR R5, =POWER_LED		
+		; if(input == 1)
+		TEQ R0, #1
+		BNE ELSE_IF_2
+		;then: turn off LED by setting the pin high
+		STR R5, [R4, #PIO_SODR]
+		B END_CONTROL_LED
+ELSE_IF_2
+		;else if(input == 2)
+		TEQ R0, #2
+		BNE END_CONTROL_LED
+		;Then turn on the led by setting the pin low
+		STR R5, [R4, #PIO_CODR]
+		B END_CONTROL_LED		
+END_CONTROL_LED
+		POP {R4-R5,R14}
 		BX R14
 		
 		
 ;*************************************************************
 ;    Function: DELAY_ASM(int)
+;    Purpose: This function will delay based on the parameter
+;               passed to it.
+;
+;                                            R0
+;    Prototype: void DELAY_ASM( unsigned int delay );
 ;		          
 ;*************************************************************
 		EXPORT DELAY_ASM
 
 DELAY_ASM
-
 		PUSH {R14}
-		NOP
-		NOP
-		NOP
+		;Double the value of the input parameter:
+		MOV R0, R0, LSL #1
+		;while (R0 != 0)
+BEGIN_DELAY_LOOP
+		TEQ R0, #0
+		BEQ END_DELAY_LOOP
+		;decrement R0
+		SUB R0, R0, #1
+		B BEGIN_DELAY_LOOP
+END_DELAY_LOOP
 		POP {R14}
 		BX R14
 
