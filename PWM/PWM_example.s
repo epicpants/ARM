@@ -11,6 +11,10 @@
 
 			INCLUDE AT91SAM7SE512.INC
 
+CLKA_MASK EQU 0xFFFF0000
+CLKB_MASK EQU 0x0000FFFF
+NO_ERRORS EQU 0
+PRESCALE_ERROR EQU 1
 
 
 
@@ -94,7 +98,73 @@ BEGIN_CMR_LOOP
 
 SET_PWM_CLK
             PUSH {R4,R5,R6,R7,R14}
-            NOP
+            
+			; Init
+			; PREx = 0
+			MOV R6,#0
+			; Set pointer to PWM
+			LDR R4,=PWM_BASE
+
+			; While ( PRESCALE > 255 )
+WHILE_PRESCALE
+			CMP R0,#255 ; Prescale in R0
+			BLS WHILE_PRESCALE_END
+			; Divide by 2
+			MOV R0,R0,LSR #1
+			; Increment PREx
+			ADD R6,R6,#1
+			B WHILE_PRESCALE
+			; End Do
+			; End-While {PRESCALE}
+
+WHILE_PRESCALE_END
+			; If ( PREx <= 10 )
+			CMP R6,#10
+			BHI PREX_ERROR ; PREx > 10
+			; Then
+
+			; If ( CLK == CLKA )
+			TEQ R1,#CLK_VALUE
+			BNE ELSE_CLKB
+			; Then
+			; Read PWM_MR
+			LDR R5,[R4,#PWM_MR]
+			; Clear CLKA half
+			LDR R7,=CLKA_MASK
+			AND R5,R5,R7
+			; Create CLK value
+			ORR R0,R0,R6,LSL #8 ; R0 = R0 | (R6 << 8)
+			; OR CLKA value
+			ORR R5,R5,R0
+			; Write PWM_MR value
+			STR R5,[R4,#PWM_MR]
+			MOV R0,#NO_ERRORS ; set return value to no errors
+			B END_IF_PREX
+
+ELSE_CLKB
+			; Else ( CLK == CLKB )
+			; Read PWM_MR
+			LDR R5,[R4,#PWM_MR]
+			; Clear CLKB half
+			LDR R7,=CLKB_MASK
+			AND R5,R5,R7
+			; Create CLK value
+			ORR R0,R0,R6,LSL #8
+			; OR CLKB value
+			ORR R5,R5,R0,LSL #16
+			; Write PWM_MR value
+			STR R5,[R4,#PWM_MR]
+			MOV R0,#NO_ERRORS ; set return value to no errors
+			B END_IF_PREX
+			; End-If {CLK}
+
+PREX_ERROR
+			; Else PREx > 10
+			MOV R0,#PRESCALE_ERROR
+
+END_IF_PREX
+			; End-If {PREx}
+
             POP {R4,R5,R6,R7,R14}
             BX R14
 
