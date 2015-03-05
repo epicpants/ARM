@@ -180,7 +180,40 @@ END_IF_PREX
 
 ENABLE_PWM
             PUSH {R4,R5,R6,R14}
-            NOP
+            
+			; Init
+			; Set PWM_BASE address
+			LDR R4,=PWM_BASE
+			; Subtract 1 from PERIOD to account for 0
+			SUB R1,R1,#1
+			; Set duty cycle value to 0
+			MOV R5,#0
+			; Set Channel Mask to Channel 0
+			MOV R6,#0x01
+
+BEGIN_CHANNEL_LOOP
+			; DO
+			; If ( ( channel_mask & PWM_NUM ) != 0 )
+			TST R0,R6
+			; Then
+			STRNE R1,[R4,#PWM_CPRD0]
+			STRNE R5,[R4,#PWM_CDTY0]
+			; End-If {channel_mask}
+			; Point to next channel
+			ADD R4,R4,#0x20
+			MOV R6,R6,LSL #1 ; adjust channel_mask
+			; While ( ( channel_mask & all_channels ) != 0 )
+			TST R6,#0x0F
+			BNE BEGIN_CHANNEL_LOOP
+			; End-Do-While {channel_mask}
+
+			; Enable PWM Interrupts
+			LDR R4,=PWM_BASE
+			STR R0,[R4,#PWM_IER] ; Interrupt enable flag
+
+			; Enable the PWM channels
+			STR R0,[R4,#PWM_ENA]
+
 			POP {R4,R5,R6,R14}
 			BX R14
 
