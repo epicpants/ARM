@@ -1,5 +1,6 @@
 /******************************************************************************/
 /* BLINKY.C: LED Flasher                                                      */
+/* Modified by Jon Eftink and Tyler Ryan																			*/
 /******************************************************************************/
 /* This file is part of the uVision/ARM development tools.                    */
 /* Copyright (c) 2005-2006 Keil Software. All rights reserved.                */
@@ -10,6 +11,7 @@
                   
 #include <AT91SAM7SE512.H>              /* AT91SAM7SE512 definitions          */
 #include "AT91SAM7SE-EK.h"           /* AT91SAM7SE-EK board definitions    */
+#include "blinky.h"											/* Additional assembly functions		*/
 
 #define SPEED (AT91B_MAIN_OSC/1000)
 
@@ -21,6 +23,7 @@
 const int led_mask[] = { AT91B_LED1, AT91B_LED2 };
 
 unsigned int LEDSpeed = 50*SPEED;
+unsigned int switch_pressed = 0;
 
 
 /* 
@@ -43,13 +46,26 @@ void change_speed (void) {
  */
  
 void wait (void) {
-  unsigned int n;
+  unsigned int n, sw;
 
   change_speed();
+	
+	sw = READ_SWITCHES();
+	if( sw != 0 ) {
+		switch_pressed = sw;
+	}
+	CONTROL_LED(switch_pressed);
   for (n = 0; n < LEDSpeed; n++);
 
   // While joystick (middle) pressed pause the LED blinking
-  while (((AT91C_BASE_PIOB->PIO_PDSR & AT91B_SW5) == 0));
+  while (((AT91C_BASE_PIOB->PIO_PDSR & AT91B_SW5) == 0)) {
+		CONTROL_LED(2);
+		DELAY_ASM(LEDSpeed);
+		CONTROL_LED(1);
+		DELAY_ASM(LEDSpeed);
+	}
+	CONTROL_LED(switch_pressed);
+	
   
 }
  
@@ -71,6 +87,9 @@ int main (void) {
   // Clear the LEDs. On the Board we must apply a "1" to turn off LEDs
   AT91C_BASE_PIOA->PIO_SODR = AT91B_LED_MASK;
 
+	// Initialize IO pins
+	IO_INIT();
+	
   // Loop forever
   for (;;) {
     for (i = 0; i < AT91B_NB_LEB; i++) {

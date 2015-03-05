@@ -128,8 +128,7 @@ ELSE_IF_2
 		TEQ R0, #2
 		BNE END_CONTROL_LED
 		;Then turn on the led by setting the pin low
-		STR R5, [R4, #PIO_CODR]
-		B END_CONTROL_LED		
+		STR R5, [R4, #PIO_CODR]		
 END_CONTROL_LED
 		POP {R4-R5,R14}
 		BX R14
