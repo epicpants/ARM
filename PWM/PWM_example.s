@@ -229,7 +229,45 @@ BEGIN_CHANNEL_LOOP
 
 UPDATE_PWM
 			PUSH {R4,R5,R6,R7,R8,R9,R14}
-            NOP
+            
+			; Init
+			LDR R4,=PWM_BASE
+			MOV R6,#0x01 	; channel_mask
+			MOV R5,#0		; clear for error_flag
+
+			; DO
+DO_WHILE_UPDATE
+			; If ( ( channel_mask & PWM_NUM ) != 0 )
+			TST R6,R0
+			BEQ END_IF_UPDATE
+			; Then update Duty Cycle
+			; Clear CPD bit
+			LDR R7,[R4,#PWM_CMR0]
+			BIC R7,R7,#CPD_BIT	; clear a single bit
+			STR R7,[R4,#PWM_CMR0]
+
+			; If ( DUTY_CYCLE_VALUE <= CPRDx )
+			LDR R7,[R4,#PWM_CPRD0]
+			CMP R1,R7
+			; Then write to update register
+			STRLS R1,[R4,#PWM_CUPD0]
+
+			; Else
+			ORRHI R5,R5,R6	; OR error value with channel_mask
+			; End-If {DUTY}
+
+END_IF_UPDATE
+			; Point to next channel
+			ADD R4,R4,#0x20
+			MOV R6,R6,LSL #1
+			; While ( ( channel_mask & all_channels ) != 0 )
+			TST R6,#0x0F
+			BNE DO_WHILE_UPDATE
+			; End-Do-While {channel}
+			
+			; Set return value
+			MOV	R0,R5
+
 			POP {R4,R5,R6,R7,R8,R9,R14}
 			BX R14
 
