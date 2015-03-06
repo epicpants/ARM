@@ -1,5 +1,5 @@
 ;*************************************************************************************
-;*  PWM_example.s
+;*  PWM_asm.s
 ;*		Routines for initializing and updating PWM
 ;*		
 ;*		CpE4151 Experiment #2, Spring 2015
@@ -11,10 +11,14 @@
 
 			INCLUDE AT91SAM7SE512.INC
 
+PA2_PA0 EQU 0x07
+CLKA_VALUE EQU 11
+CLKB_VALUE EQU 12
 CLKA_MASK EQU 0xFFFF0000
 CLKB_MASK EQU 0x0000FFFF
 NO_ERRORS EQU 0
 PRESCALE_ERROR EQU 1
+CPD_BIT EQU 1<<10
 
 
 
@@ -51,16 +55,16 @@ INIT_PWM
 			STR R5,[R4,#PIO_PDR]
 			STR R5,[R4,#PIO_ASR]
 
-			LDR R4,=PIOB_BASE
-			MOV R5,#PB14_PB11
-			AND R5,R5,R0,LSL #11
-			STR R5,[R4,#PIO_PDR]
-			STR R5,[R4,#PIO_ASR]
+			;LDR R4,=PIOB_BASE
+			;MOV R5,#PB14_PB11
+			;AND R5,R5,R0,LSL #11
+			;STR R5,[R4,#PIO_PDR]
+			;STR R5,[R4,#PIO_ASR]
 
 			; Create Channel Mode Register (PWM_CMRx) value using Clock_Sel, Polarity, and Alignment
 			AND R5,R1,#0x0F ; limit to 4 bits
 			AND R2,R2,#0x01 ; limit to 1 bit
-			AND R3,R3,#Ox01 ; limit to 1 bit
+			AND R3,R3,#0x01 ; limit to 1 bit
 			ORR R5,R5,R2,LSL #9
 			ORR R5,R5,R3,LSL #8
 
@@ -90,7 +94,9 @@ BEGIN_CMR_LOOP
 ;******************************************************************************
 ;*	SET PWM PRESCALE	error_flag SET_PWM_CLK(R0=DIVIDER,R1=CLK)
 ;*		Sets up the specified DIVA or DIVB clk
-;*		  
+;*		CLK can be A or B  
+;*			11 indicates CLKA
+;*			12 indicates CLKB
 ;*		
 ;*******************************************************************************			
 			
@@ -124,7 +130,7 @@ WHILE_PRESCALE_END
 			; Then
 
 			; If ( CLK == CLKA )
-			TEQ R1,#CLK_VALUE
+			TEQ R1,#CLKA_VALUE
 			BNE ELSE_CLKB
 			; Then
 			; Read PWM_MR

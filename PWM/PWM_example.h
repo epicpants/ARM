@@ -1,5 +1,5 @@
-#ifndef _PWM_example_2015_H
-#define _PWM_example_2015_H
+#ifndef _PWM_example_H
+#define _PWM_example_H
 
 #include ".\AT91SAM7SE-EK.h"
 
@@ -23,9 +23,16 @@
 #define CLKA (11)
 #define CLKB (12)
 
+// type declarations 
+
+typedef unsigned int uint32;
 
 // function declarations
 
+extern void INIT_PWM(uint32 PWM_Num,uint32 Prescale, uint32 Polarity, uint32 Align);
+extern uint32 SET_PWM_CLK(uint32 DIVIDER,uint32 CLK);
+extern void ENABLE_PWM(uint32 PWM_NUM,uint32 PERIOD);
+extern uint32 UPDATE_PWM(uint32 PWM_NUM,uint32 UPDATE_VAL);
 
 
 
