@@ -2,6 +2,7 @@
 #define _PWM_example_H
 
 #include ".\AT91SAM7SE-EK.h"
+#include "types.h"
 
 // constant definitions
 
@@ -22,10 +23,6 @@
 #define MCK_INPUT_1024 (10)
 #define CLKA (11)
 #define CLKB (12)
-
-// type declarations 
-
-typedef unsigned int uint32;
 
 // function declarations
 
