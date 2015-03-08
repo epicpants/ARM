@@ -1,3 +1,8 @@
+/******************************************************************************/
+/* Button.h:                                                                  */
+/* Jon Eftink & Tyler Ryan                                                    */
+/******************************************************************************/
+
 
 #ifndef SWITCH_H
 #define SWITCH_H
@@ -28,9 +33,11 @@ enum
     LEFT_SWITCH
 };
 
+#define NUM_BUTTONS 2
+
 //Left pushbutton:  button[0].
 //Right pushbutton: button[1]
-#define NUM_BUTTONS 2
+extern button buttons[NUM_BUTTONS];
 
 
 extern void IO_INIT( void );

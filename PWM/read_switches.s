@@ -34,7 +34,8 @@ RIGHT_LED EQU 0x00000004
 
 ;***********************************************************
 ;    Function: IO_INIT
-;
+;    Sets up PB26/27 (left and right PB )as inputs and PA2
+;       (right LED) as outputs.
 ;***********************************************************
 		EXPORT IO_INIT
 
@@ -71,7 +72,7 @@ IO_INIT
 
 ;*************************************************************
 ;    Function: READ_SWITCHES
-;
+;    Reads the left and right pushbuttons (PB26/27)
 ;*************************************************************
 		EXPORT READ_SWITCHES
 
@@ -104,7 +105,7 @@ END_IF_SW
 ;    Purpose: This function controls the right LED. An input
 ;               of 1 will power on the LED. 2 will power off 
 ;               the LED. Any other input will do nothing.
-;    Assumptions: The power led pin is set up as an output.
+;    Assumptions: The right led pin is set up as an output.
 ;
 ;                                              R0
 ;    Prototype: void CONTROL_LED( unsigned int value);
