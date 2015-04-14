@@ -6,10 +6,13 @@
 TIOA0 EQU 1 << 0
 TIOA1 EQU 1 << 15
 TIOB1 EQU 1 << 16
+TIOA2 EQU 1 << 17
 WAVE_MODE EQU 1 << 15
 BURST_MODE EQU 1 << 4  ;Clock is ANDed with XCO
 AUTO_TRG EQU 2 << 13   ;UP mode with automatic trigger on RC compare
 CLEAR_RA EQU 2 << 16
+RISING_RA EQU 1 << 16
+FALLING_RB EQU 1 << 19
 SET_RB EQU 1 << 24
 SET_RC EQU 1 << 18
 SWTRG_SET_A EQU 1 << 22
@@ -22,6 +25,7 @@ REG_BT1_VAL EQU 23961
 ENABLE_CLK EQU 1 << 16
 SEL_XC0 EQU 1 << 10
 STOP_ON_RC EQU 1 << 6
+STOP_ON_RB EQU 1 << 6
         
 ;***********************************************************
 ;    AREA DEFINITION AND OPTIONS
@@ -42,18 +46,21 @@ STOP_ON_RC EQU 1 << 6
 TMR_INIT       
     PUSH{ R4, R5, R14 }
     
-    ; Enable Peripheral Clock for Timer 0 and 1:
+    ; Enable Peripheral Clock for Timer 0, 1, and 2:
 	LDR R4,=PMC_BASE	                               
     MOV R5, #TC0_PID	                                    
 	STR R5,[R4,#PMC_PCER]  
     MOV R5, #TC1_PID
     STR R5, [R4, #PMC_PCER]
+	MOV R5, #TC2_PID
+    STR R5, [R4, #PMC_PCER]
 
-    ; Set Timer/Counter 0 and 1 pins to be controlled by peripheral:
+    ; Set Timer/Counter 0, 1, and 2 pins to be controlled by peripheral:
 	LDR R4,=PIOB_BASE
 	MOV R5, #TIOA0
     ORR R5, R5, #TIOA1
     ORR R5, R5, #TIOB1
+	ORR R5, R5, #TIOA2
 	STR R5,[R4,#PIO_PER]
     
     ;Timer 0:
@@ -96,8 +103,19 @@ TMR_INIT
     LDR R4, =TC_BASE
     STR R5, [R4, #TC_BMR]
     
+	; TIMER 2:
+		; Set the mode register
+	LDR R4, =TC2_BASE
+	;LDR R5, [R4, #TC_CMR]
+	;BIC R5, R5, #WAVE_MODE ; Clears the wave bit (enables capture mode)
+	MOV R5, #0
+	ORR R5, R5, #RISING_RA	; Load RA on rising edge
+	ORR R5, R5, #FALLING_RB	; Load RB on falling edge
+	ORR R5, R5, #STOP_ON_RB	; Stop capture mode after RA and RB filled (i.e. after RB filled)
+	STR R5, [R4, #TC_CMR]	; Set mode register
+	 
     
-    ;Enable timer 0:
+    ;Enable Timer 0:
     LDR R4, =TC0_BASE
     MOV R5, #1              
     STR R5, [R4, #TC_CCR]   ;Enables clock
@@ -109,11 +127,35 @@ TMR_INIT
     MOV R5, #1              
     STR R5, [R4, #TC_CCR]   ;Enables clock
     MOV R5, #ENABLE_CLK
-    STR R5, [R4, #TC_SR]    ;Also enables clock   
+    STR R5, [R4, #TC_SR]    ;Also enables clock 
+
+	; Enable Timer 2:
+	LDR R4, =TC2_BASE
+	MOV R5, #1              
+    STR R5, [R4, #TC_CCR]   ;Enables clock
+    MOV R5, #ENABLE_CLK
+    STR R5, [R4, #TC_SR]    ;Also enables clock (isn't this a read-only register?) 
 
 
     POP{ R4, R5, R14 }
     BX R14 
-    
+
+
+;***********************************************************
+;    Function: START_TIMERS()
+;    This function will set the sync bit in TC block control 
+;        register (TC_BCR). This should synchronously start  
+;        timer 0 and timer 1.
+;***********************************************************
+		EXPORT START_TIMERS
+START_TIMERS       
+    PUSH{ R4, R5, R14 }
+
+	LDR R4, =TC_BASE
+	MOV R5, #1
+	STR R5, [R4, #TC_BCR]
+	
+	POP{ R4, R5, R14 }
+	BX R14   
     
     END
