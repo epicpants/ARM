@@ -142,7 +142,7 @@ TMR_INIT
 
 
 ;***********************************************************
-;    Function: START_TIMERS()
+;    Function: START_TIMERS
 ;    This function will set the sync bit in TC block control 
 ;        register (TC_BCR). This should synchronously start  
 ;        timer 0 and timer 1.
@@ -156,6 +156,39 @@ START_TIMERS
 	STR R5, [R4, #TC_BCR]
 	
 	POP{ R4, R5, R14 }
-	BX R14   
+	BX R14  
+	
+;***********************************************************
+;    Function: READ_TC2_SR
+;    This function will read the status register of Timer 2. 
+;        It returns the 32-bit contents of that register.
+;***********************************************************
+		EXPORT READ_TC2_SR
+READ_TC_SR       
+    PUSH{ R4, R14 }
+
+	LDR R4, =TC2_BASE
+	LDR R0, [R4, #TC_SR]
+	
+	POP{ R4, R14 }
+	BX R14
+	
+;***********************************************************
+;    Function: READ_TC2_REGISTER( Register Mask )
+;    This function will read RA or RB of Timer 2. 
+;        Register Mask = 0 -> RA will be returned.  
+;        Register Mask = 1 -> RB will be returned.
+;***********************************************************
+		EXPORT READ_TC2_REGISTER
+READ_TC2_REGISTER       
+    PUSH{ R4, R5, R14 }
+
+	LDR R4, =TC2_BASE
+	MOVS R5, R0
+	LDREQ R0, [R4, #TC_RA]
+	LDRNE R0, [R4, #TC_RB]
+	
+	POP{ R4, R5, R14 }
+	BX R14 
     
     END
