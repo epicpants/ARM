@@ -164,7 +164,7 @@ START_TIMERS
 ;        It returns the 32-bit contents of that register.
 ;***********************************************************
 		EXPORT READ_TC2_SR
-READ_TC_SR       
+READ_TC2_SR       
     PUSH{ R4, R14 }
 
 	LDR R4, =TC2_BASE
