@@ -1,3 +1,7 @@
+;******************************************************************************
+;* timer.asm:                                                                  *
+;* Jon Eftink & Tyler Ryan                                                    *
+;******************************************************************************
 
 ;*********************************************************************
 ;    CONSTANT DEFINITIONS
@@ -61,7 +65,8 @@ TMR_INIT
     ORR R5, R5, #TIOA1
     ORR R5, R5, #TIOB1
 	ORR R5, R5, #TIOA2
-	STR R5,[R4,#PIO_PER]
+	STR R5,[R4,#PIO_PDR]
+	STR R5,[R4,#PIO_ASR]
     
     ;Timer 0:
         ;Set the mode register, RA and RC registers to generate 40kHz wave:
@@ -95,11 +100,10 @@ TMR_INIT
     STR R5, [R4, #TC_RA]  ;Set RA value for 100us
     LDR R5, =REG_BT1_VAL
     STR R5, [R4, #TC_RB]   ;Set RB value for 1ms
-    LDR R5, =REG_BT1_VAL
     STR R5, [R4, #TC_RC]   ;Set RC value to be equal to RB.
     
     ;Connect TIOA1 to XCO using block mode register:
-    MOV R5, #2 ;Select TIOA1 for XCO
+    MOV R5, #22 ;Select TIOA1 for XCO
     LDR R4, =TC_BASE
     STR R5, [R4, #TC_BMR]
     
@@ -119,22 +123,16 @@ TMR_INIT
     LDR R4, =TC0_BASE
     MOV R5, #1              
     STR R5, [R4, #TC_CCR]   ;Enables clock
-    MOV R5, #ENABLE_CLK
-    STR R5, [R4, #TC_SR]    ;Also enables clock
     
     ;Enable Timer 1:
     LDR R4, =TC1_BASE
     MOV R5, #1              
     STR R5, [R4, #TC_CCR]   ;Enables clock
-    MOV R5, #ENABLE_CLK
-    STR R5, [R4, #TC_SR]    ;Also enables clock 
 
 	; Enable Timer 2:
 	LDR R4, =TC2_BASE
 	MOV R5, #1              
     STR R5, [R4, #TC_CCR]   ;Enables clock
-    MOV R5, #ENABLE_CLK
-    STR R5, [R4, #TC_SR]    ;Also enables clock (isn't this a read-only register?) 
 
 
     POP{ R4, R5, R14 }
