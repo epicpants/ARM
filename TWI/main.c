@@ -25,8 +25,10 @@ int main(void)
 	TMR_INIT();
 	IO_INIT();          //initialize pushbuttons
 	init_buttons();     //Initialize the global button structs in button.c
-    init_ISR();
+
     init_PITC();
+    init_USART0();
+    init_ISR();
     
 	while(1) 
     {
