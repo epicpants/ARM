@@ -15,6 +15,7 @@
 #include "timer.h"
 #include "button.h"
 #include "types.h"
+#include "int.h"
 
 int main(void)
 {
@@ -24,26 +25,29 @@ int main(void)
 	TMR_INIT();
 	IO_INIT();          //initialize pushbuttons
 	init_buttons();     //Initialize the global button structs in button.c
+    init_ISR();
+    init_PITC();
     
-	while(1) {
-		num_overflows = 0;
-		num_counts = 0;
+	while(1) 
+    {
+		//num_overflows = 0;
+		//num_counts = 0;
 		
-		update_buttons();
+		//update_buttons();
 
 		/*
 		 * Wait for a switch to be pressed
 		 */
-		while ( buttons[LEFT_SWITCH].status == NOT_PRESSED ) {
+		/*while ( buttons[LEFT_SWITCH].status == NOT_PRESSED ) {
 			//Delay for ~1 ms
       for(i = 0; i != 5000; i++);	
 			update_buttons();
-		}
+		}*/
 
 		/*
 		 * Start timers, generating a burst of waveforms once a switch has been pressed
 		 */
-		START_TIMERS();
+		/*START_TIMERS();
 
 		do {
 			TC_SR = READ_TC2_SR();
@@ -61,7 +65,7 @@ int main(void)
 		distance = ( time * velocity ) / 2;
 		
 		if ( distance > 3 );
-		i++;
+		i++;*/
 
 	}
       

@@ -1,4 +1,6 @@
 #include "TWI.h"
+#include <AT91SAM7SE512.H>
+
 
 uint32 TWI_READ(uint32 device_addr, uint32 internal_addr, uint32 internal_size, uint32 num_bytes, uint32 * values)
 {
@@ -33,7 +35,7 @@ uint32 TWI_READ(uint32 device_addr, uint32 internal_addr, uint32 internal_size, 
 		}
 
 		temp = AT91C_BASE_TWI -> TWI_RHR;
-		value[index] = temp;
+		values[index] = temp;
 		index++;
 		num_bytes--;
 

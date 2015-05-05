@@ -9,6 +9,9 @@
 
 #include "types.h"
 
+#define LED_ON 2
+#define LED_OFF 1
+
 typedef enum
 {
     NOT_PRESSED,
