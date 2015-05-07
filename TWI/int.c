@@ -128,6 +128,10 @@ void init_ISR( void )
     AT91C_BASE_AIC->AIC_SMR[6] = POS_EDGE;
     AT91C_BASE_AIC->AIC_SVR[6] = (uint32)USART0_TX_ISR;
     AT91C_BASE_AIC->AIC_IECR = 1 << 6;
+	
+		AT91C_BASE_AIC->AIC_SMR[7] = POS_EDGE; 							// I guess
+    AT91C_BASE_AIC->AIC_SVR[7] = (uint32)TIMER2_ISR;		// Not sure about PID here
+    AT91C_BASE_AIC->AIC_IECR = 1 << 7;
     
     return;    
 }
