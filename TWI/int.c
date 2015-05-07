@@ -264,7 +264,7 @@ void init_USART0(void)
 {
     
     //Enable peripheral clock for USART 0:
-    AT91C_BASE_SYS->PMC_SCER = US0_PID; 
+	  AT91C_BASE_SYS->PMC_PCER = US0_PID; 
     
     //Disable Parallel I/0 for RXD0 and TXD0:
     AT91C_BASE_SYS->PIOA_PDR = US0_PORTS;
@@ -307,9 +307,6 @@ void uart_tx( uint8 * data, uint8 num_bytes )
         }
         
         AT91C_BASE_US0->US_CR = EN_TX;
-        //AT91C_BASE_US0->US_THR = tx_buf[read_index];
-        //read_index++;
-        //read_index %= BUF_SZ;
     }
 }
 
