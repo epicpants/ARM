@@ -31,6 +31,8 @@ SEL_XC0 EQU 1 << 10
 STOP_ON_RC EQU 1 << 6
 STOP_ON_RB EQU 1 << 6
 COVENABLE EQU 1 << 0
+CLKEN EQU 1 << 0
+CLKDIS EQU 1 << 1
         
 ;***********************************************************
 ;    AREA DEFINITION AND OPTIONS
@@ -124,17 +126,17 @@ TMR_INIT
     
     ;Enable Timer 0:
     LDR R4, =TC0_BASE
-    MOV R5, #1              
+    MOV R5, #CLKEN              
     STR R5, [R4, #TC_CCR]   ;Enables clock
     
     ;Enable Timer 1:
     LDR R4, =TC1_BASE
-    MOV R5, #1              
+    MOV R5, #CLKEN              
     STR R5, [R4, #TC_CCR]   ;Enables clock
 
 	; Enable Timer 2:
 	LDR R4, =TC2_BASE
-	MOV R5, #1              
+	MOV R5, #CLKEN              
     STR R5, [R4, #TC_CCR]   ;Enables clock
 
 
@@ -155,6 +157,49 @@ START_TIMERS
 	LDR R4, =TC_BASE
 	MOV R5, #1
 	STR R5, [R4, #TC_BCR]
+	
+	POP{ R4, R5, R14 }
+	BX R14  
+	
+;***********************************************************
+;    Function: STOP_TIMERS
+;    This function will disable Timers 0, 1, and 2 to stop
+;        them. It will then enable them again so they can  
+;        be restarted later.
+;***********************************************************
+		EXPORT STOP_TIMERS
+STOP_TIMERS       
+    PUSH{ R4, R5, R14 }
+
+	;Disable Timer 0:
+    LDR R4, =TC0_BASE
+    MOV R5, #CLKDIS              
+    STR R5, [R4, #TC_CCR]   ;Disables clock
+    
+    ;Disable Timer 1:
+    LDR R4, =TC1_BASE
+    MOV R5, #CLKDIS              
+    STR R5, [R4, #TC_CCR]   ;Disables clock
+
+	; Disable Timer 2:
+	LDR R4, =TC2_BASE
+	MOV R5, #CLKDIS              
+    STR R5, [R4, #TC_CCR]   ;Disables clock
+	
+	;Enable Timer 0:
+    LDR R4, =TC0_BASE
+    MOV R5, #CLKEN              
+    STR R5, [R4, #TC_CCR]   ;Enables clock
+    
+    ;Enable Timer 1:
+    LDR R4, =TC1_BASE
+    MOV R5, #CLKEN              
+    STR R5, [R4, #TC_CCR]   ;Enables clock
+
+	; Enable Timer 2:
+	LDR R4, =TC2_BASE
+	MOV R5, #CLKEN              
+    STR R5, [R4, #TC_CCR]   ;Enables clock
 	
 	POP{ R4, R5, R14 }
 	BX R14  
