@@ -3,12 +3,7 @@
 /* Jon Eftink & Tyler Ryan                                                    */
 /******************************************************************************/
 
-#define COVFS_MASK (1)
-#define LDRBS_MASK (1 << 6)
-#define COUNTER_MAX (65536)
-#define RA (0)
-#define RB (1)
-#define SOUND_VELOCITY (1127) // in ft/s
+
 
 #include <AT91SAM7SE512.H>              /* AT91SAM7SE512 definitions          */
 #include ".\AT91SAM7SE-EK.h"           /* AT91SAM7SE-EK board definitions    */

@@ -10,7 +10,15 @@
 //Temporary include:
 #include "button.h"
 
-
+/*
+ * Constants also used by main.c
+ */
+#define COUNTER_MAX (65536)	
+#define COVFS_MASK (1)
+#define LDRBS_MASK (1 << 6)
+#define RA (0)
+#define RB (1)
+#define SOUND_VELOCITY (1127) // in ft/s
 
 void init_ISR( void );
 void init_PITC( void );
