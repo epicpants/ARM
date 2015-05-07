@@ -25,6 +25,7 @@
 //Local Functions:
 __irq void PIT_ISR(void);
 __irq void USART0_TX_ISR(void);
+__irq void TIMER2_ISR(void);
 
 //Global vars:
 int interval = -1;
@@ -108,6 +109,14 @@ __irq void USART0_TX_ISR(void)
        
     AT91C_BASE_AIC->AIC_EOICR = 0;
     return;
+}
+
+__irq void TIMER2_ISR(void)
+{
+		uint32 temp;
+		temp = AT91C_BASE_TC2 -> TC_SR; // TC_CSR does not exist?
+		num_overflows++;
+		AT91C_BASE_AIC -> AIC_EOICR = 0;
 }
 
 //This function will initialize the Advanced Interrupt Controller.
