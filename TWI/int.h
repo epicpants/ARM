@@ -6,6 +6,7 @@
 #include <AT91SAM7SE512.H>
 #include "types.h"
 #include "timer.h"
+#include "TWI.h"
 #include "string.h"
 //Temporary include:
 #include "button.h"
@@ -19,6 +20,7 @@
 #define RA (0)
 #define RB (1)
 #define SOUND_VELOCITY (1127) // in ft/s
+#define MAX_INTERVALS (65)
 
 void init_ISR( void );
 void init_PITC( void );

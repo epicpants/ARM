@@ -28,11 +28,16 @@
 __irq void PIT_ISR(void);
 __irq void USART0_TX_ISR(void);
 __irq void TIMER2_ISR(void);
+void add_to_buf( char * buf, uint8 index, uint8 integer, uint8 frac);
 
 //Global vars:
 uint32 interval = 0;
 uint32 num_overflows;
 uint32 num_counts;
+uint32 temperature[2] = {0, 0};
+uint32 fahr;
+uint32 celc;
+uint32 error = NO_ERRORS;
 uint8 tx_buf[BUF_SZ];
 uint8 write_index = 0;
 uint8 read_index = 0;
@@ -47,7 +52,6 @@ __irq void PIT_ISR(void)
 		uint8 index;
 		uint8 integer;
 		uint8 frac;
-		uint32 divisor = 1000000000;
     char buf[50];
     
     //tmp = AT91C_BASE_PITC->PITC_PIVR;
@@ -106,51 +110,10 @@ __irq void PIT_ISR(void)
 						integer = (uint8) distance; 																								// integer portion
 						frac = (uint8)(((long long) num_counts * 10000) / MCK ) * SOUND_VELOCITY;		// fractional portion
 						strcpy(buf, "\n\rDistance = ");
-						index = 13;
+						index = strlen(buf); // 13;
 						
-					
-						/*
-						 * Convert integer portion to characters
-						 */
+						add_to_buf(buf, index, integer, frac);
 						
-						// Remove leading zeroes
-						do
-						{
-								tmp = integer / divisor;
-								divisor = divisor / 10;
-						} while(tmp == 0);
-						
-						while(divisor > 1)
-						{
-								buf[index] = tmp | 0x30;
-								index++;
-								integer = integer - (tmp * divisor);
-								divisor = divisor / 10;
-								tmp = integer / divisor;
-						}
-						buf[index] = tmp | 0x30;
-						
-						index++;
-						strcat(buf, ".");
-						index++;
-						
-						/*
-						 * Convert fraction portion to characters
-						 */
-						
-						while(divisor > 1)
-						{
-								buf[index] = tmp | 0x30;
-								index++;
-								frac = frac - (tmp * divisor);
-								divisor = divisor / 10;
-								tmp = frac / divisor;
-						}
-						buf[index] = tmp | 0x30;
-						
-						index++;
-						strcat(buf, "\n\r\0");
-						index++;
 				}
 		}
 		else if(interval == 4)
@@ -175,13 +138,44 @@ __irq void PIT_ISR(void)
 				*/
 				uart_tx(buf, strlen(buf));
 		}
-    
-		interval++;
-		
-		if(interval >= 20)
+    else if(interval == 56)
+		{
+				// Read DS75 temp sensor
+				error = TWI_READ( (DS75 << 1) | 1, TEMP_ADDR, 1, 2, temperature);
+		}
+		else if (interval == 57)
+		{
+				if(error == NO_ERRORS)
+				{
+						celc = (temperature[0] << 8) + temperature[1]; 	// fixed point temperature, in Celsius
+						fahr = ((celc * 461) >> 8) + 8192;							// fixed point temperature, in Fahrenheit
+					
+						// Display Celsius temp
+						integer = celc >> 8;
+						frac = celc & 0xFF;
+						strcpy(buf, "\n\rTemp (Celcius) = ");
+						index = strlen(buf);
+						add_to_buf(buf, index, integer, frac);
+					
+						uart_tx(buf, strlen(buf));
+					
+						// Display Fahrenheit temp
+						integer = fahr >> 8;
+						frac = fahr & 0xFF;
+						strcpy(buf, "\n\rTemp (Fahrenheit) = ");
+						index = strlen(buf);
+						add_to_buf(buf, index, integer, frac);
+					
+						uart_tx(buf, strlen(buf));
+				}
+		}
+		else if(interval >= MAX_INTERVALS)
 		{
 				interval = 0;
 		}
+		interval++;
+		
+		
     
     AT91C_BASE_AIC->AIC_EOICR = 0;
     return;
@@ -317,4 +311,53 @@ void uart_tx( uint8 * data, uint8 num_bytes )
         //read_index++;
         //read_index %= BUF_SZ;
     }
+}
+
+void add_to_buf( char * buf, uint8 index, uint8 integer, uint8 frac)
+{
+		uint32 divisor = 1000000000;
+		uint32 tmp;
+	
+		/*
+		 * Convert integer portion to characters
+		 */
+		
+		// Remove leading zeroes
+		do
+		{
+				tmp = integer / divisor;
+				divisor = divisor / 10;
+		} while(tmp == 0);
+		
+		while(divisor > 1)
+		{
+				buf[index] = tmp | 0x30;
+				index++;
+				integer = integer - (tmp * divisor);
+				divisor = divisor / 10;
+				tmp = integer / divisor;
+		}
+		buf[index] = tmp | 0x30;
+		
+		index++;
+		strcat(buf, ".");
+		index++;
+		
+		/*
+		 * Convert fraction portion to characters
+		 */
+		
+		while(divisor > 1)
+		{
+				buf[index] = tmp | 0x30;
+				index++;
+				frac = frac - (tmp * divisor);
+				divisor = divisor / 10;
+				tmp = frac / divisor;
+		}
+		buf[index] = tmp | 0x30;
+		
+		index++;
+		strcat(buf, "\n\r\0");
+		index++;
 }

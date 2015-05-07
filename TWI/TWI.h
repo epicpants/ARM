@@ -17,6 +17,10 @@
 #define MREAD (1<<12)
 #define NACK_BIT (1<<8)
 #define TX_COMP (1)
+#define	DS75 (0x48)
+#define RES (1 << 5) // 10-bit resolution
+#define TEMP_ADDR (0)
+#define CONF_ADDR (0x01)
 
 extern void INIT_TWI(void);
 extern uint32 TWI_WRITE(uint32 device_addr, 

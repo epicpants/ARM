@@ -8,13 +8,15 @@
 #include <AT91SAM7SE512.H>              /* AT91SAM7SE512 definitions          */
 #include ".\AT91SAM7SE-EK.h"           /* AT91SAM7SE-EK board definitions    */
 #include "timer.h"
+#include "TWI.h"
 #include "button.h"
 #include "types.h"
 #include "int.h"
 
 int main(void)
 {
-	uint32 i, TC_SR, reg_A, reg_B, num_overflows, num_counts, velocity;
+	uint32 error;
+	uint32 values[2];
 	float time, distance;
 	
 	TMR_INIT();
@@ -24,6 +26,14 @@ int main(void)
     init_PITC();
     init_USART0();
     init_ISR();
+	INIT_TWI();
+	
+	values[0] = RES;
+	error = TWI_WRITE( (DS75 << 1), CONF_ADDR, 1, 1, values );
+	if(error != NO_ERRORS)
+	{
+			return 1;
+	}
     
 	while(1) 
     {
