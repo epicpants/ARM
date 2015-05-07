@@ -28,7 +28,7 @@
 __irq void PIT_ISR(void);
 __irq void USART0_TX_ISR(void);
 __irq void TIMER2_ISR(void);
-void add_to_buf( char * buf, uint8 index, uint8 integer, uint8 frac);
+void add_to_buf( char * buf, uint8 index, uint32 integer, uint32 frac);
 
 //Global vars:
 uint32 interval = 0;
@@ -50,11 +50,11 @@ __irq void PIT_ISR(void)
 {
     uint8 tmp;
 		uint8 index;
-		uint8 integer;
-		uint8 frac;
+		uint32 integer;
+		uint32 frac;
     char buf[50];
     
-    //tmp = AT91C_BASE_PITC->PITC_PIVR;
+    tmp = AT91C_BASE_PITC->PITC_PIVR;
     //interval++;
     
 	  /*
@@ -107,8 +107,8 @@ __irq void PIT_ISR(void)
 				if(num_counts != 0)
 				{
 						// Print the distance as a formatted string
-						integer = (uint8) distance; 																								// integer portion
-						frac = (uint8)(((long long) num_counts * 10000) / MCK ) * SOUND_VELOCITY;		// fractional portion
+						integer = (uint32) distance; 																								// integer portion
+						frac = (uint32)((distance - integer) * 1000); //(uint8)(((long long) num_counts * 10000) / MCK ) * SOUND_VELOCITY;		// fractional portion
 						strcpy(buf, "\n\rDistance = ");
 						index = strlen(buf); // 13;
 						
@@ -138,6 +138,7 @@ __irq void PIT_ISR(void)
 				*/
 				uart_tx(buf, strlen(buf));
 		}
+		/*
     else if(interval == 56)
 		{
 				// Read DS75 temp sensor
@@ -169,6 +170,7 @@ __irq void PIT_ISR(void)
 						uart_tx(buf, strlen(buf));
 				}
 		}
+		*/
 		else if(interval >= MAX_INTERVALS)
 		{
 				interval = 0;
@@ -310,7 +312,7 @@ void uart_tx( uint8 * data, uint8 num_bytes )
     }
 }
 
-void add_to_buf( char * buf, uint8 index, uint8 integer, uint8 frac)
+void add_to_buf( char * buf, uint8 index, uint32 integer, uint32 frac)
 {
 		uint32 divisor = 1000000000;
 		uint32 tmp;
@@ -343,7 +345,8 @@ void add_to_buf( char * buf, uint8 index, uint8 integer, uint8 frac)
 		/*
 		 * Convert fraction portion to characters
 		 */
-		
+		divisor = 100;
+		tmp = frac / divisor;
 		while(divisor > 1)
 		{
 				buf[index] = tmp | 0x30;
@@ -355,6 +358,6 @@ void add_to_buf( char * buf, uint8 index, uint8 integer, uint8 frac)
 		buf[index] = tmp | 0x30;
 		
 		index++;
+		buf[index] = '\0';
 		strcat(buf, "\n\r\0");
-		index++;
 }

@@ -50,7 +50,7 @@ INIT_TWI
 	 PUSH {R4, R5, R14}
 
 	 ; Enable the peripheral clock
-	 LDR R4, =TWI_BASE
+	 LDR R4, =SYSC_BASE
 	 MOV R5, #TWI_PID
 	 STR R5, [R4, #PMC_PCER]
 
