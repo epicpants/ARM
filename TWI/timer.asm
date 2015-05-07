@@ -30,6 +30,7 @@ ENABLE_CLK EQU 1 << 16
 SEL_XC0 EQU 1 << 10
 STOP_ON_RC EQU 1 << 6
 STOP_ON_RB EQU 1 << 6
+COVENABLE EQU 1 << 0
         
 ;***********************************************************
 ;    AREA DEFINITION AND OPTIONS
@@ -117,6 +118,8 @@ TMR_INIT
 	ORR R5, R5, #FALLING_RB	; Load RB on falling edge
 	ORR R5, R5, #STOP_ON_RB	; Stop capture mode after RA and RB filled (i.e. after RB filled)
 	STR R5, [R4, #TC_CMR]	; Set mode register
+	MOV R5, #COVENABLE
+	STR R5, [R4, #TC_IER]	; Enable Counter Overflow Interrupt
 	 
     
     ;Enable Timer 0:
