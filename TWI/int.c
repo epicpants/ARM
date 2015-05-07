@@ -232,7 +232,7 @@ __irq void USART0_TX_ISR(void)
 __irq void TIMER2_ISR(void)
 {
 		uint32 temp;
-		temp = AT91C_BASE_TC2 -> TC_SR; // TC_CSR does not exist?
+		temp = READ_TC2_SR();//AT91C_BASE_TC2 -> TC_SR; // TC_CSR does not exist?
 		num_overflows++;
 		AT91C_BASE_AIC -> AIC_EOICR = 0;
 }
@@ -247,9 +247,9 @@ void init_ISR( void )
     AT91C_BASE_AIC->AIC_SVR[6] = (uint32)USART0_TX_ISR;
     AT91C_BASE_AIC->AIC_IECR = 1 << 6;
 	
-		AT91C_BASE_AIC->AIC_SMR[7] = POS_EDGE; 							// I guess
-    AT91C_BASE_AIC->AIC_SVR[7] = (uint32)TIMER2_ISR;		// Not sure about PID here
-    AT91C_BASE_AIC->AIC_IECR = 1 << 7;
+		AT91C_BASE_AIC->AIC_SMR[14] = POS_EDGE; 							// I guess
+    AT91C_BASE_AIC->AIC_SVR[14] = (uint32)TIMER2_ISR;		// Not sure about PID here
+    AT91C_BASE_AIC->AIC_IECR = 1 << 14;
     
     return;    
 }
