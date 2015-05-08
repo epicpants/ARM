@@ -321,7 +321,7 @@ void uart_tx( uint8 * data, uint8 num_bytes )
 void add_to_buf( char * buf, uint8 index, uint32 integer, uint32 frac)
 {
 		uint32 divisor = 1000000000;
-		uint32 tmp;
+		uint32 tmp = 0;
 	
 		/*
 		 * Convert integer portion to characters
@@ -330,11 +330,12 @@ void add_to_buf( char * buf, uint8 index, uint32 integer, uint32 frac)
 		// Remove leading zeroes
 		if(integer != 0)
 		{
-			do
+			do 
 			{
 					tmp = integer / divisor;
 					divisor = divisor / 10;
 			} while(tmp == 0);
+			divisor *= 10;
 		}
 		else
 		{
@@ -353,8 +354,9 @@ void add_to_buf( char * buf, uint8 index, uint32 integer, uint32 frac)
 		buf[index] = tmp | 0x30;
 		
 		index++;
+		buf[index] = '\0';
 		strcat(buf, ".");
-		index++;
+		index = strlen(buf);
 		
 		/*
 		 * Convert fraction portion to characters
