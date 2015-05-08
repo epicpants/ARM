@@ -1,3 +1,7 @@
+/******************************************************************************/
+/* int.c:                                		                                  */
+/* Jon Eftink & Tyler Ryan                                                    */
+/******************************************************************************/
 
 #include "int.h"
 
@@ -6,21 +10,20 @@
 #define PIT_COUNT 59903
 #define MCK 47923200
 #define US0_PID 1 << 6
-//Might be missing pin 7 & 8 for USART0:
 #define US0_PORTS ( ( 1 << 5 ) | ( 1 << 6 ) )
 #define RESET_BIT ( 1 << 8 | 1 | 2 )
 #define LDRB_BIT ( 1 << 6 )
 #define MODE_NORMAL ( 0 )
 #define CHAR_LEN ( 3 << 6 )
 #define NO_PARITY ( 4 << 9 )
-#define CLK_DIV ( 312 ) //16x oversampling, baud rate = 9600
-#define FRAC_PART ( 0 << 16 ) //No fractional part necessary for 16x oversampling at BR = 9600
+#define CLK_DIV ( 312 ) 														//16x oversampling, baud rate = 9600
+#define FRAC_PART ( 0 << 16 ) 											//No fractional part necessary for 16x oversampling at BR = 9600
 #define TX_RDY_BIT ( 1 << 1 )
 #define EN_RCVR ( 1 << 4 )
 #define DIS_TX ( 1 << 7 )
 #define EN_TX ( 1 << 6 )
 #define BUF_SZ 256
-#define ERR0R_CHAR 0x21  //'!' character
+#define ERR0R_CHAR 0x21  														//'!' character
 
 
 
@@ -45,7 +48,9 @@ float time;
 float distance;
 
 
-
+/*
+ * PIT Interrupt Service Routine
+ */
 __irq void PIT_ISR(void)
 {
     uint8 tmp;
@@ -55,23 +60,7 @@ __irq void PIT_ISR(void)
     char buf[50];
     
     tmp = AT91C_BASE_PITC->PITC_PIVR;
-    //interval++;
     
-	  /*
-    switch( interval )
-    {
-        case 9:
-            CONTROL_LED( LED_ON );
-            break;
-        case 19:
-            CONTROL_LED( LED_OFF );
-            interval = -1;
-            strcpy( buf, "Hello world\n" );
-            uart_tx( buf, strlen( buf ) + 1 );
-            break;   
-    }
-	  */
-	
 	  if(interval == 0)
 		{
 				num_overflows = 0;
@@ -99,7 +88,7 @@ __irq void PIT_ISR(void)
 				if(num_counts != 0)
 				{
 						// Calculate distance
-						distance = ((float)(num_counts * SOUND_VELOCITY))/MCK; // this equation looks different - probably why our measurements were off
+						distance = ((float)(num_counts * SOUND_VELOCITY))/MCK; 
 				}
 		}
 		else if(interval == 3)
@@ -107,10 +96,10 @@ __irq void PIT_ISR(void)
 				if(num_counts != 0)
 				{
 						// Print the distance as a formatted string
-						integer = (uint32) distance; 																								// integer portion
-						frac = (uint32)((distance - integer) * 1000); //(uint8)(((long long) num_counts * 10000) / MCK ) * SOUND_VELOCITY;		// fractional portion
+						integer = (uint32) distance; 													// integer portion
+						frac = (uint32)((distance - integer) * 1000); 				// fractional portion
 						strcpy(buf, "\n\rDistance = ");
-						index = strlen(buf); // 13;
+						index = strlen(buf);
 						
 						add_to_buf(buf, index, integer, frac);
 						
@@ -118,24 +107,6 @@ __irq void PIT_ISR(void)
 		}
 		else if(interval == 4)
 		{
-				/*
-				index = 0;
-				while(buf[index] != 0)
-				{
-						tx_buf[read_index] = (uint8) buf[index];
-						read_index++;
-						read_index &= 0xFF;
-						index++;
-				}
-				
-				if(read_index != write_index)
-				{
-						tmp = tx_buf[write_index];
-						write_index++;
-						write_index &= 0xFF;
-						uart_tx(&tmp, 1);
-				}
-				*/
 				if(num_counts != 0)
 				{
 						uart_tx(buf, strlen(buf));
@@ -144,7 +115,6 @@ __irq void PIT_ISR(void)
 		
     else if(interval == 18)
 		{
-				//TWI_WRITE( (DS75), TEMP_ADDR, 1, 0, temperature );
 				// Read DS75 temp sensor
 				error = TWI_READ( (DS75), TEMP_ADDR, 1, 2, temperature);
 		}
@@ -175,21 +145,19 @@ __irq void PIT_ISR(void)
 				}
 		}
 		
-		
 		interval++;
 		if(interval >= MAX_INTERVALS)
 		{
 				interval = 0;
 		}
-		
-		
-		
     
     AT91C_BASE_AIC->AIC_EOICR = 0;
     return;
 }
 
-
+/*
+ * USART Interrupt Service Routine
+ */
 __irq void USART0_TX_ISR(void)
 {
     int tmp;
@@ -235,39 +203,51 @@ __irq void USART0_TX_ISR(void)
     return;
 }
 
+/*
+ * Timer2 Interrupt Service Routine
+ */
 __irq void TIMER2_ISR(void)
 {
 		uint32 temp;
-		temp = AT91C_BASE_TC2 -> TC_SR; // TC_CSR does not exist?
+	
+		// Read status register to clear flags
+		temp = AT91C_BASE_TC2 -> TC_SR;
 		num_overflows++;
 		AT91C_BASE_AIC -> AIC_EOICR = 0;
 }
 
-//This function will initialize the Advanced Interrupt Controller.
+/*
+ * Initialize the Advanced Interrupt Controller
+ */
 void init_ISR( void )
 {
     AT91C_BASE_AIC->AIC_SMR[1] = POS_EDGE;
     AT91C_BASE_AIC->AIC_SVR[1] = (uint32)PIT_ISR;
     AT91C_BASE_AIC->AIC_IECR = 1 << 1;
+	
     AT91C_BASE_AIC->AIC_SMR[6] = POS_EDGE;
     AT91C_BASE_AIC->AIC_SVR[6] = (uint32)USART0_TX_ISR;
     AT91C_BASE_AIC->AIC_IECR = 1 << 6;
 	
-		AT91C_BASE_AIC->AIC_SMR[14] = POS_EDGE; 							// I guess
-    AT91C_BASE_AIC->AIC_SVR[14] = (uint32)TIMER2_ISR;		// Not sure about PID here
+		AT91C_BASE_AIC->AIC_SMR[14] = POS_EDGE; 							
+    AT91C_BASE_AIC->AIC_SVR[14] = (uint32)TIMER2_ISR;	
     AT91C_BASE_AIC->AIC_IECR = 1 << 14;
     
     return;    
 }
 
-//This timer will initialize the PIT timer.
+/*
+ * Initialize the PIT timer
+ */
 void init_PITC( void )
 {
     AT91C_BASE_PITC->PITC_PIMR = ( 0x03000000 | PIT_COUNT );
     return;
 }
 
-//This function will initialize USART 0. 
+/*
+ * Initialize USART 0
+ */
 void init_USART0(void)
 {
     
@@ -301,7 +281,9 @@ void init_USART0(void)
     return;
 }
 
-
+/*
+ * UART transmit
+ */
 void uart_tx( uint8 * data, uint8 num_bytes )
 {
     int i;
@@ -318,6 +300,9 @@ void uart_tx( uint8 * data, uint8 num_bytes )
     }
 }
 
+/*
+ * Convenience function for adding an integer and fraction as characters to a buffer
+ */
 void add_to_buf( char * buf, uint8 index, uint32 integer, uint32 frac)
 {
 		uint32 divisor = 1000000000;

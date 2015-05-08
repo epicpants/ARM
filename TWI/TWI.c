@@ -1,7 +1,14 @@
+/******************************************************************************/
+/* TWI.c:                                                                		  */
+/* Jon Eftink & Tyler Ryan                                                    */
+/******************************************************************************/
+
 #include "TWI.h"
 #include <AT91SAM7SE512.H>
 
-
+/*
+ * Perform a read from a slave
+ */
 uint32 TWI_READ(uint32 device_addr, uint32 internal_addr, uint32 internal_size, uint32 num_bytes, uint32 * values)
 {
 	uint32 temp, index, return_value;

@@ -1,5 +1,7 @@
 /******************************************************************************/
-/* EXAMPLE.C: LED Flasher w/PIT INTERRUPT                                                      */
+/* TC_ultrasonic_test.c:                                                      */
+/* Original file author: Roger Younger 																										*/
+/* Modified by: Jon Eftink & Tyler Ryan                                                    */
 /******************************************************************************/
 /* This file is part of the uVision/ARM development tools.                    */
 /* Copyright (c) 2005-2006 Keil Software. All rights reserved.                */
@@ -37,14 +39,11 @@
  */
 
 int main (void) {
-  unsigned int switch_input,temp,num_overflows,num_counts;
 	uint32 error;
 	uint32 values[2];
-	float time, distance;
 
 
 	init_ISR();
-	
   init_USART0();
 	
   // Enable the Clock of the PIO and all three timer channels
@@ -88,14 +87,13 @@ int main (void) {
   AT91C_BASE_TC2->TC_CCR=0x00000001;  // Enable but do not start TC2
 
  
-	// Initialize IO for powerLED control and switch input
 	IO_INIT();
 	INPUT_INIT();
-
 	INIT_TWI();
 	
-	
 	values[0] = RES;
+	
+	// Write to the DS75 configuration register and specify resolution
 	error = TWI_WRITE( (DS75), CONF_ADDR, 1, 1, values );
 	if(error != NO_ERRORS)
 	{
@@ -104,33 +102,5 @@ int main (void) {
 	init_PITC();
 
   // Loop forever
-  for (;;) 
-	{
-		/*
-		switch_input=READ_SWITCHES();
-    if(switch_input==RIGHT_SW_PRESSED)
-    {
-      CONTROL_LED(LED_ON);
-      DELAY_ASM(500000);  // delay for debouncing of switch			
-			AT91C_BASE_TCB->TCB_BCR=0x00000001;  // Start all enabled timers
-			num_overflows=0;
-			num_counts=0;
-			do
-			{
-				temp=AT91C_BASE_TC2->TC_SR;
-				if((temp&0x01)==0x01)
-				{
-					num_overflows++;  // increment overflows when counter overflow (COVFS) set
-				}
-			}while(((temp&0x40)==0)&&(num_overflows<10));  // Loop until RB is loaded with a value (LDRBS is set)			
-			if(num_overflows<10)
-			{
-			    CONTROL_LED(LED_OFF);  // if LED does not go off, an echo was not received
-			}
-			temp=AT91C_BASE_TC2->TC_RA;
-			num_counts=(num_overflows*65536)+temp;
-			
-		}
-		*/
-  }
+  for (;;);
 }

@@ -1,5 +1,5 @@
 /******************************************************************************/
-/* Button.h:                                                                  */
+/* TWI.h:                                		                                  */
 /* Jon Eftink & Tyler Ryan                                                    */
 /******************************************************************************/
 
@@ -19,7 +19,7 @@
 #define NACK_BIT (1<<8)
 #define TX_COMP (1)
 #define	DS75 (0x48)
-#define RES (1 << 5) // 10-bit resolution
+#define RES (1 << 5) 				// 10-bit resolution
 #define TEMP_ADDR (0)
 #define CONF_ADDR (0x01)
 
