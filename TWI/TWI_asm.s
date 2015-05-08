@@ -19,7 +19,6 @@ CKDIV EQU 1
 DIV EQU 238
 DIV8 EQU 238 << 8
 CKDIV16 EQU CKDIV << 16 
-DIV_MASK EQU DIV:OR:DIV<<8:OR:CKDIV<<16
 MSEN EQU 1<<2
 SVDIS EQU 1<<5
 SWRST EQU 1<<7
@@ -40,8 +39,10 @@ NO_ERRORS EQU 0
 ;******************************************************************************
 ;*	INITIALIZATION ROUTINE			void INIT_TWI(void)
 ;*		
-;*		  
-;*		
+;*		  Sets up the Two Wire Interface for the processor.
+;*		  Uses TWD (PA3) and TWCK (PA4) as I/O pins.
+;*		  Configures the clock frequency to < 50 kHz
+;*
 ;*******************************************************************************
 
 			EXPORT INIT_TWI
@@ -83,7 +84,7 @@ INIT_TWI
 ;******************************************************************************
 ;*	TWI WRITE ROUTINE			uint32 TWI_WRITE(uint32 device_addr, uint32 internal_addr, uint32 internal_size, uint32 num_bytes, uint32 * values)
 ;*		
-;*		  
+;*		  Perform a write operation to a specified slave
 ;*		
 ;*******************************************************************************
 
