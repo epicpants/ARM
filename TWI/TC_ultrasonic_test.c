@@ -44,7 +44,7 @@ int main (void) {
 
 
 	init_ISR();
-	init_PITC();
+	
   init_USART0();
 	
   // Enable the Clock of the PIO and all three timer channels
@@ -91,17 +91,17 @@ int main (void) {
 	// Initialize IO for powerLED control and switch input
 	IO_INIT();
 	INPUT_INIT();
-	
-
 
 	INIT_TWI();
 	
+	
 	values[0] = RES;
-	error = TWI_WRITE( (DS75 << 1), CONF_ADDR, 1, 1, values );
+	error = TWI_WRITE( (DS75), CONF_ADDR, 1, 1, values );
 	if(error != NO_ERRORS)
 	{
 			return 1;
 	}
+	init_PITC();
 
   // Loop forever
   for (;;) 

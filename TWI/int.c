@@ -144,9 +144,9 @@ __irq void PIT_ISR(void)
 		
     else if(interval == 18)
 		{
-				TWI_WRITE( (DS75 << 1), TEMP_ADDR, 1, 0, temperature );
+				//TWI_WRITE( (DS75), TEMP_ADDR, 1, 0, temperature );
 				// Read DS75 temp sensor
-				error = TWI_READ( (DS75 << 1) | 1, TEMP_ADDR, 0, 2, temperature);
+				error = TWI_READ( (DS75), TEMP_ADDR, 1, 2, temperature);
 		}
 		else if (interval == 19)
 		{

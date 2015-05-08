@@ -23,7 +23,7 @@ DIV_MASK EQU DIV:OR:DIV<<8:OR:CKDIV<<16
 MSEN EQU 1<<2
 SVDIS EQU 1<<5
 SWRST EQU 1<<7
-TWI_MODE_MASK EQU MSEN:OR:SVDIS:OR:SWRST
+TWI_MODE_MASK EQU MSEN:OR:SVDIS
 NACK_BIT EQU 1<<8
 NACK_ERROR EQU 1
 TXRDY_BIT EQU 1<<2
@@ -64,17 +64,18 @@ INIT_TWI
 	 STR R5, [R4, #PIO_MDER] ; Multi-drive Enable Register
 	 STR R5, [R4, #PIO_PUDR] ; Pull-up Disable Register
 
-	 ; Set the TWI clock frequency
+	 ; Set TWI Master mode and disable Slave mode
 	 LDR R4, =TWI_BASE
+	 MOV R5, #TWI_MODE_MASK
+	 STR R5, [R4, #TWI_CR]
+	 
+	 ; Set the TWI clock frequency
+	 
 	 ;MOV R5, #DIV_MASK
      MOV R5, #DIV
      ORR R5, R5, #DIV8
      ORR R5, R5, #CKDIV16
 	 STR R5, [R4, #TWI_CWGR]
-
-	 ; Set TWI Master mode and disable Slave mode
-	 MOV R5, #TWI_MODE_MASK
-	 STR R5, [R4, #TWI_CR]
 
 	 POP {R4, R5, R14}
 	 BX R14
@@ -95,7 +96,7 @@ TWI_WRITE
 	LDR R5, =TWI_BASE
 	MOV R6, R0, LSL #16			; DADDR
 	ORR R6, R6, R2, LSL #8		; IADRSZ
-	STR R6, [R5, #TWI_SMR]
+	STR R6, [R5, #TWI_MMR]
 	STR R1, [R5, #TWI_IADR]		; Store internal address to IADR
 
 DO_LOOP
