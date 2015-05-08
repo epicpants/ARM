@@ -50,7 +50,7 @@ INIT_TWI
 	 PUSH {R4, R5, R14}
 
 	 ; Enable the peripheral clock
-	 LDR R4, =SYSC_BASE
+	 LDR R4, =PMC_BASE
 	 MOV R5, #TWI_PID
 	 STR R5, [R4, #PMC_PCER]
 
@@ -96,7 +96,7 @@ TWI_WRITE
 	MOV R6, R0, LSL #16			; DADDR
 	ORR R6, R6, R2, LSL #8		; IADRSZ
 	STR R6, [R5, #TWI_SMR]
-	STR R1, [R5, #TWI_IADR]		; Store internal address to IADR (should R5 be R1?)
+	STR R1, [R5, #TWI_IADR]		; Store internal address to IADR
 
 DO_LOOP
 	; Do

@@ -97,6 +97,11 @@ int main (void) {
 	INIT_TWI();
 	
 	values[0] = RES;
+	error = TWI_WRITE( (DS75 << 1), CONF_ADDR, 1, 1, values );
+	if(error != NO_ERRORS)
+	{
+			return 1;
+	}
 
   // Loop forever
   for (;;) 

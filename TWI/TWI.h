@@ -11,6 +11,7 @@
 
 #define NO_ERRORS (0)
 #define NACK_ERROR (1)
+#define OVRE (1<<6)
 #define START_BIT (1)
 #define STOP_BIT (1<<1)
 #define RXRDY (1<<1)

@@ -26,9 +26,9 @@ uint32 TWI_READ(uint32 device_addr, uint32 internal_addr, uint32 internal_size, 
 		do
 		{
 			temp = AT91C_BASE_TWI -> TWI_SR;
-		} while( ( (temp & RXRDY) == 0 ) && ( (temp & NACK_BIT) == 0 ) );
+		} while( ( (temp & RXRDY) == 0 ) && ( (temp & NACK_BIT) == 0 ) && ( (temp & OVRE) == 0) );
 
-		if( (temp & NACK_BIT) != 0 )
+		if( (temp & NACK_BIT) != 0 || ( (temp & OVRE) != 0 ) )
 		{
 			return_value = NACK_ERROR;
 			break;

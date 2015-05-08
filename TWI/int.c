@@ -141,13 +141,14 @@ __irq void PIT_ISR(void)
 						uart_tx(buf, strlen(buf));
 				}
 		}
-		/*
-    else if(interval == 56)
+		
+    else if(interval == 18)
 		{
+				TWI_WRITE( (DS75 << 1), TEMP_ADDR, 1, 0, temperature );
 				// Read DS75 temp sensor
-				error = TWI_READ( (DS75 << 1) | 1, TEMP_ADDR, 1, 2, temperature);
+				error = TWI_READ( (DS75 << 1) | 1, TEMP_ADDR, 0, 2, temperature);
 		}
-		else if (interval == 57)
+		else if (interval == 19)
 		{
 				if(error == NO_ERRORS)
 				{
@@ -173,7 +174,7 @@ __irq void PIT_ISR(void)
 						uart_tx(buf, strlen(buf));
 				}
 		}
-		*/
+		
 		
 		interval++;
 		if(interval >= MAX_INTERVALS)
