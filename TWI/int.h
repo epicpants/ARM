@@ -20,7 +20,7 @@
 #define RA (0)
 #define RB (1)
 #define SOUND_VELOCITY (1127) // in ft/s
-#define MAX_INTERVALS (65)
+#define MAX_INTERVALS (20)
 
 void init_ISR( void );
 void init_PITC( void );

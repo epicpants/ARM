@@ -75,7 +75,7 @@ __irq void PIT_ISR(void)
 	  if(interval == 0)
 		{
 				num_overflows = 0;
-				START_TIMERS();
+				AT91C_BASE_TCB->TCB_BCR=0x00000001;  // Start all enabled timers
 		}
 		else if(interval == 1)
 		{
@@ -85,7 +85,7 @@ __irq void PIT_ISR(void)
 				// Check LDRB bit
 				if( (tmp & LDRB_BIT) == LDRB_BIT )
 				{
-						num_counts = (num_overflows * COUNTER_MAX) + READ_TC2_REGISTER( RA );
+						num_counts = (num_overflows * COUNTER_MAX) + AT91C_BASE_TC2->TC_RA;
 				}
 				else
 				{
@@ -136,7 +136,10 @@ __irq void PIT_ISR(void)
 						uart_tx(&tmp, 1);
 				}
 				*/
-				uart_tx(buf, strlen(buf));
+				if(num_counts != 0)
+				{
+						uart_tx(buf, strlen(buf));
+				}
 		}
 		/*
     else if(interval == 56)
@@ -171,11 +174,13 @@ __irq void PIT_ISR(void)
 				}
 		}
 		*/
-		else if(interval >= MAX_INTERVALS)
+		
+		interval++;
+		if(interval >= MAX_INTERVALS)
 		{
 				interval = 0;
 		}
-		interval++;
+		
 		
 		
     
@@ -232,7 +237,7 @@ __irq void USART0_TX_ISR(void)
 __irq void TIMER2_ISR(void)
 {
 		uint32 temp;
-		temp = READ_TC2_SR();//AT91C_BASE_TC2 -> TC_SR; // TC_CSR does not exist?
+		temp = AT91C_BASE_TC2 -> TC_SR; // TC_CSR does not exist?
 		num_overflows++;
 		AT91C_BASE_AIC -> AIC_EOICR = 0;
 }
@@ -322,11 +327,19 @@ void add_to_buf( char * buf, uint8 index, uint32 integer, uint32 frac)
 		 */
 		
 		// Remove leading zeroes
-		do
+		if(integer != 0)
 		{
-				tmp = integer / divisor;
-				divisor = divisor / 10;
-		} while(tmp == 0);
+			do
+			{
+					tmp = integer / divisor;
+					divisor = divisor / 10;
+			} while(tmp == 0);
+		}
+		else
+		{
+					divisor = 1;
+					tmp = 0;
+		}
 		
 		while(divisor > 1)
 		{
